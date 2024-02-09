@@ -1,0 +1,42 @@
+scalar GraphQLDate
+enum StatusType{
+    New
+    Assigned
+    Fixed
+    Closed
+}
+type Issue{
+    _id:ID!
+    id:Int!
+    status:StatusType!
+    owner:String
+    effort:Int
+    created:GraphQLDate!
+    due:GraphQLDate
+    title:String!
+    description:String
+}
+input IssueInputs{
+    title:String!
+    "Optional! If not supplied , it will set to 'New' by Default "
+    status:StatusType=New
+    owner:String
+    effort:Int
+    due:GraphQLDate
+    description:String
+}
+
+
+
+#top level declerations
+type Query{
+    about:String!
+    issueList(status: StatusType):[Issue!]!
+    issue(id:Int!):Issue!
+}
+
+type Mutation{
+    setMessage(message:String!):String
+    addIssue(issue:IssueInputs!):Issue!
+}
+
