@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, withRouter, NavLink } from 'react-router-dom';
 
-const IssueRow = withRouter(({ issue,location:{search} })=>{
+const IssueRow = withRouter(({ issue,location:{search},closeIssue,index })=>{
   const url = { pathname:`/issues/${issue.id}`, search};
   return (
     <tr>
@@ -16,6 +16,10 @@ const IssueRow = withRouter(({ issue,location:{search} })=>{
         <Link to={`/edit/${issue.id}`}>Edit</Link>
         {' | '}
         <NavLink to={url}>Select</NavLink>
+        {' | '}
+        <button type="button" onClick = {()=>{closeIssue(index);}}>
+          Close
+        </button>
       </td>
     </tr>
   );

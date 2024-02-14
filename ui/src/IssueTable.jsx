@@ -2,7 +2,7 @@ import React from 'react';
 
 import IssueRow from "./IssueRow.jsx";
 
-export default function IssueTable({ issues }) {
+export default function IssueTable({ issues,closeIssue }) {
   return (
     <>
       <table className="bordered-table">
@@ -19,8 +19,8 @@ export default function IssueTable({ issues }) {
           </tr>
         </thead>
         <tbody>
-          {issues.map(issue => (
-            <IssueRow key={issue.id} issue={issue} />
+          {issues.map((issue,index) => (
+            <IssueRow key={issue.id} issue={issue} index={index} closeIssue={closeIssue}/>
           ))}
         </tbody>
       </table>

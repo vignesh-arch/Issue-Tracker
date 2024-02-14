@@ -17,6 +17,7 @@ export default class IssueList extends React.Component {
       issues: [],
     };
     this.createIssue = this.createIssue.bind(this);
+    this.closeIssue = this.closeIssue.bind(this);
   }
 
   componentDidMount() {
@@ -39,6 +40,27 @@ export default class IssueList extends React.Component {
         }`;
     const data = await GraphQLFetch(query, { issue });
     if (data) this.loadData();
+  }
+
+  async closeIssue(index){
+    const query = `mutation issueUpdate($id:Int!){
+      issueUpdate(id:$id,changes:{status:Closed}){
+        id title created status
+        owner effort due description
+      }
+    }`;
+    const {issues} = this.state;
+    const data = await GraphQLFetch(query,{id:issues[index].id});
+    if(data){
+      this.setState((prevState)=>{
+        const newList = [...prevState.issues];
+        newList[index] = data.issueUpdate;
+        return {issues:newList};
+      });
+    }
+    else{
+      this.loadData();
+    }
   }
 
   async loadData() {
@@ -81,7 +103,7 @@ export default class IssueList extends React.Component {
         <h1>Issue Tracker</h1>
         <IssueFilter />
         <hr />
-        <IssueTable issues={issues} />
+        <IssueTable issues={issues}  closeIssue={this.closeIssue}/>
         <hr />
         <IssueAdd createIssue={ this.createIssue } />
         <hr />

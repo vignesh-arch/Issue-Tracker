@@ -9,12 +9,13 @@ const GraphQLDate = require('./graphql_date.js');
 const resolvers = {
     Query:{
         about: about.getMessage,
-        issueList: issue.issueList,
+        issueList: issue.list,
         issue: issue.get,
     },
     Mutation:{
         setMessage: about.setMessage,
-        addIssue: issue.addIssue,
+        addIssue: issue.add,
+        issueUpdate: issue.update,
     },
     GraphQLDate,
 }
