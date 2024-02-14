@@ -1,6 +1,7 @@
 import React from 'react';
 import URLSearchParams from 'url-search-params';
 import { Route } from 'react-router-dom';
+import { Label } from 'react-bootstrap';
 
 import IssueAdd from "./IssueAdd.jsx";
 import IssueFilter from "./IssueFilter.jsx";
@@ -18,6 +19,7 @@ export default class IssueList extends React.Component {
     };
     this.createIssue = this.createIssue.bind(this);
     this.closeIssue = this.closeIssue.bind(this);
+    this.deleteIssue = this.deleteIssue.bind(this);
   }
 
   componentDidMount() {
@@ -63,6 +65,33 @@ export default class IssueList extends React.Component {
     }
   }
 
+  async deleteIssue(index){
+    const query = `mutation issueDelete($id:Int!){
+      issueDelete(id: $id)
+    }`;
+    const {location:{pathname,search},history} = this.props;
+    const {issues} = this.state;
+    const {id} = issues[index];
+    const data = await GraphQLFetch(query,{id});
+    if(data && data.issueDelete){
+      this.setState((prevState)=>{
+        const newList = [...prevState.issues];
+        if(pathname===`/issues/${id}`){
+          history.push({
+            pathname:'/issues',
+            search,
+          })
+        }
+        newList.splice(index,1);
+        return {issues:newList};
+      });
+    }
+    else{
+      this.loadData();
+    }
+
+  }
+
   async loadData() {
     const { location: { search }} = this.props ;
     const params = new URLSearchParams(search);
@@ -100,10 +129,14 @@ export default class IssueList extends React.Component {
     const { match } = this.props;
     return (
       <>
-        <h1>Issue Tracker</h1>
+        <h1><Label>Issue Tracker</Label></h1>
         <IssueFilter />
         <hr />
-        <IssueTable issues={issues}  closeIssue={this.closeIssue}/>
+        <IssueTable
+         issues={issues}
+         closeIssue={this.closeIssue} 
+         deleteIssue={this.deleteIssue}
+        />
         <hr />
         <IssueAdd createIssue={ this.createIssue } />
         <hr />

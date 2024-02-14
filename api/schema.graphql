@@ -49,5 +49,6 @@ type Mutation{
     setMessage(message:String!):String
     addIssue(issue:IssueInputs!):Issue!
     issueUpdate(id:Int!,changes:IssueUpdateInputs!):Issue!
+    issueDelete(id:Int!):Boolean!
 }
 

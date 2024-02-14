@@ -2,6 +2,7 @@
 /* eslint no-restricted-globals: "off" */
 
 db.issues.deleteMany({});
+db.deleted_issues.deleteMany({});
 
 const issues = [
   {
@@ -45,3 +46,4 @@ db.issues.createIndex({ id: 1 }, { unique: true });
 db.issues.createIndex({ owner: 1 });
 db.issues.createIndex({ created: 1 });
 db.issues.createIndex({ status: 1 });
+db.deleted_issues.createIndex({ id: 1}, {unique: true});
