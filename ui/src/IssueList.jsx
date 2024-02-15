@@ -143,9 +143,7 @@ export default class IssueList extends React.Component {
           closeIssue={this.closeIssue} 
           deleteIssue={this.deleteIssue}
         />
-        <hr />
         <IssueAdd createIssue={ this.createIssue } />
-        <hr />
         <Route path={`${match.path}/:id`} component={IssueDetail} />
       </React.Fragment>
     );
