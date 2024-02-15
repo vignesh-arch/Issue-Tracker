@@ -1,11 +1,12 @@
 import React from 'react';
+import { Table } from 'react-bootstrap';
 
 import IssueRow from "./IssueRow.jsx";
 
 export default function IssueTable({ issues,closeIssue,deleteIssue }) {
   return (
     <>
-      <table className="bordered-table">
+      <Table bordered condensed hover responsive>
         <thead>
           <tr>
             <th>ID</th>
@@ -23,7 +24,7 @@ export default function IssueTable({ issues,closeIssue,deleteIssue }) {
             <IssueRow key={issue.id} issue={issue} index={index} closeIssue={closeIssue} deleteIssue={deleteIssue}/>
           ))}
         </tbody>
-      </table>
+      </Table>
     </>
   );
 }

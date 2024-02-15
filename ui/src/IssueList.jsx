@@ -1,7 +1,7 @@
 import React from 'react';
 import URLSearchParams from 'url-search-params';
 import { Route } from 'react-router-dom';
-import { Label } from 'react-bootstrap';
+import { Panel } from 'react-bootstrap';
 
 import IssueAdd from "./IssueAdd.jsx";
 import IssueFilter from "./IssueFilter.jsx";
@@ -126,22 +126,28 @@ export default class IssueList extends React.Component {
 
   render() {
     const { issues } = this.state;
-    const { match } = this.props;
+    const { location:{search}, match } = this.props;
+    const hasFilter = search !== '';
     return (
-      <>
-        <h1><Label>Issue Tracker</Label></h1>
-        <IssueFilter />
-        <hr />
+      <React.Fragment>
+        <Panel defaultExpanded={hasFilter}>
+          <Panel.Heading>
+            <Panel.Title toggle>Filter</Panel.Title>
+          </Panel.Heading>
+          <Panel.Body collapsible>
+            <IssueFilter />
+          </Panel.Body>
+        </Panel>
         <IssueTable
-         issues={issues}
-         closeIssue={this.closeIssue} 
-         deleteIssue={this.deleteIssue}
+          issues={issues}
+          closeIssue={this.closeIssue} 
+          deleteIssue={this.deleteIssue}
         />
         <hr />
         <IssueAdd createIssue={ this.createIssue } />
         <hr />
         <Route path={`${match.path}/:id`} component={IssueDetail} />
-      </>
+      </React.Fragment>
     );
   }
 }
