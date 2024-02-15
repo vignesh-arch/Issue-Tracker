@@ -42,6 +42,7 @@ const IssueRow = withRouter(({ issue,location:{search},closeIssue,index,deleteIs
             </Button>
           </OverlayTrigger>
         </LinkContainer>
+        {' '}
         <OverlayTrigger placement="top" delayShow={1000} overlay={closeTooltip}>
           <Button bsSize="xsmall" type="button" onClick = {onClose}>
             <Glyphicon glyph="remove"/>
