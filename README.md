@@ -1,2 +1,2 @@
 # Issue-Tracker
-MERN Stack Application to track issues
+MERN Stack Application to track and manage issues
