@@ -13,7 +13,7 @@ export default class IssueDetail extends React.Component {
       toastType: "info",
     };
     this.showError = this.showError.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
+    this.onDismissToast = this.onDismissToast.bind(this);
   }
 
   componentDidMount() {
@@ -63,7 +63,7 @@ export default class IssueDetail extends React.Component {
     });
   }
 
-  onDismiss() {
+  onDismissToast() {
     this.setState({ toastVisible: false });
   }
 
@@ -77,7 +77,7 @@ export default class IssueDetail extends React.Component {
         <h3>Description</h3>
         <pre>{description}</pre>
         <Toast
-          onDismiss={this.onDismiss}
+          onDismiss={this.onDismissToast}
           bsStyle={toastType}
           showing={toastVisible}
         >

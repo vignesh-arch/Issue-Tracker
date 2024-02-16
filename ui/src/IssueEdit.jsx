@@ -36,7 +36,7 @@ export default class IssueEdit extends React.Component {
     this.onDismissValidation = this.onDismissValidation.bind(this);
     this.showSuccess = this.showSuccess.bind(this);
     this.showError = this.showError.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
+    this.onDismissToast = this.onDismissToast.bind(this);
   }
 
   componentDidMount() {
@@ -150,7 +150,7 @@ export default class IssueEdit extends React.Component {
     });
   }
 
-  onDismiss() {
+  onDismissToast() {
     this.setState({ toastVisible: false });
   }
 
@@ -327,7 +327,7 @@ export default class IssueEdit extends React.Component {
           <Link to={`/edit/${id + 1}`}>Next</Link>
         </Panel.Footer>
         <Toast
-          onDismiss={this.onDismiss}
+          onDismiss={this.onDismissToast}
           bsStyle={toastType}
           showing={toastVisible}
         >

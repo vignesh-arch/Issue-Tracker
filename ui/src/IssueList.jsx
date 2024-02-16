@@ -3,7 +3,6 @@ import URLSearchParams from "url-search-params";
 import { Route } from "react-router-dom";
 import { Panel } from "react-bootstrap";
 
-import IssueAdd from "./IssueAdd.jsx";
 import IssueFilter from "./IssueFilter.jsx";
 import IssueTable from "./IssueTable.jsx";
 import GraphQLFetch from "./graphQLFetch.js";
@@ -21,12 +20,11 @@ export default class IssueList extends React.Component {
       toastMessage: "",
       toastType: "info",
     };
-    this.createIssue = this.createIssue.bind(this);
     this.closeIssue = this.closeIssue.bind(this);
     this.deleteIssue = this.deleteIssue.bind(this);
     this.showSuccess = this.showSuccess.bind(this);
     this.showError = this.showError.bind(this);
-    this.onDismiss = this.onDismiss.bind(this);
+    this.onDismissToast = this.onDismissToast.bind(this);
   }
 
   componentDidMount() {
@@ -42,19 +40,6 @@ export default class IssueList extends React.Component {
     } = this.props;
     if (prevSearch !== search) {
       this.loadData();
-    }
-  }
-
-  async createIssue(issue) {
-    const query = `mutation addIssue($issue:IssueInputs!){
-            addIssue(issue:$issue){
-                id
-            }
-        }`;
-    const data = await GraphQLFetch(query, { issue },this.showError);
-    if (data){ 
-      this.loadData();
-      this.showSuccess('Issue Added Successfully.');
     }
   }
 
@@ -158,7 +143,7 @@ export default class IssueList extends React.Component {
     });
   }
 
-  onDismiss() {
+  onDismissToast() {
     this.setState({ toastVisible: false });
   }
 
@@ -186,10 +171,9 @@ export default class IssueList extends React.Component {
           closeIssue={this.closeIssue}
           deleteIssue={this.deleteIssue}
         />
-        <IssueAdd createIssue={this.createIssue} />
         <Route path={`${match.path}/:id`} component={IssueDetail} />
         <Toast
-          onDismiss={this.onDismiss}
+          onDismiss={this.onDismissToast}
           bsStyle={toastType}
           showing={toastVisible}
         >
