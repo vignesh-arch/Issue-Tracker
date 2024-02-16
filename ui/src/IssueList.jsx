@@ -1,13 +1,14 @@
-import React from 'react';
-import URLSearchParams from 'url-search-params';
-import { Route } from 'react-router-dom';
-import { Panel } from 'react-bootstrap';
+import React from "react";
+import URLSearchParams from "url-search-params";
+import { Route } from "react-router-dom";
+import { Panel } from "react-bootstrap";
 
 import IssueAdd from "./IssueAdd.jsx";
 import IssueFilter from "./IssueFilter.jsx";
 import IssueTable from "./IssueTable.jsx";
 import GraphQLFetch from "./graphQLFetch.js";
-import IssueDetail from './IssueDetail.jsx';
+import IssueDetail from "./IssueDetail.jsx";
+import Toast from "./Toast.jsx";
 
 /* eslint React */
 
@@ -16,10 +17,16 @@ export default class IssueList extends React.Component {
     super();
     this.state = {
       issues: [],
+      toastVisible: false,
+      toastMessage: "",
+      toastType: "info",
     };
     this.createIssue = this.createIssue.bind(this);
     this.closeIssue = this.closeIssue.bind(this);
     this.deleteIssue = this.deleteIssue.bind(this);
+    this.showSuccess = this.showSuccess.bind(this);
+    this.showError = this.showError.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
   }
 
   componentDidMount() {
@@ -27,9 +34,13 @@ export default class IssueList extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { location: { search: prevSearch} } = prevProps;
-    const { location: { search } } = this.props;
-    if( prevSearch !== search ){
+    const {
+      location: { search: prevSearch },
+    } = prevProps;
+    const {
+      location: { search },
+    } = this.props;
+    if (prevSearch !== search) {
       this.loadData();
     }
   }
@@ -40,67 +51,74 @@ export default class IssueList extends React.Component {
                 id
             }
         }`;
-    const data = await GraphQLFetch(query, { issue });
-    if (data) this.loadData();
+    const data = await GraphQLFetch(query, { issue },this.showError);
+    if (data){ 
+      this.loadData();
+      this.showSuccess('Issue Added Successfully.');
+    }
   }
 
-  async closeIssue(index){
+  async closeIssue(index) {
     const query = `mutation issueUpdate($id:Int!){
       issueUpdate(id:$id,changes:{status:Closed}){
         id title created status
         owner effort due description
       }
     }`;
-    const {issues} = this.state;
-    const data = await GraphQLFetch(query,{id:issues[index].id});
-    if(data){
-      this.setState((prevState)=>{
+    const { issues } = this.state;
+    const data = await GraphQLFetch(query, { id: issues[index].id },this.showError);
+    if (data) {
+      this.setState((prevState) => {
         const newList = [...prevState.issues];
         newList[index] = data.issueUpdate;
-        return {issues:newList};
+        return { issues: newList };
       });
-    }
-    else{
+      this.showSuccess('Issue Closed.')
+    } else {
       this.loadData();
     }
   }
 
-  async deleteIssue(index){
+  async deleteIssue(index) {
     const query = `mutation issueDelete($id:Int!){
       issueDelete(id: $id)
     }`;
-    const {location:{pathname,search},history} = this.props;
-    const {issues} = this.state;
-    const {id} = issues[index];
-    const data = await GraphQLFetch(query,{id});
-    if(data && data.issueDelete){
-      this.setState((prevState)=>{
+    const {
+      location: { pathname, search },
+      history,
+    } = this.props;
+    const { issues } = this.state;
+    const { id } = issues[index];
+    const data = await GraphQLFetch(query, { id });
+    if (data && data.issueDelete) {
+      this.setState((prevState) => {
         const newList = [...prevState.issues];
-        if(pathname===`/issues/${id}`){
+        if (pathname === `/issues/${id}`) {
           history.push({
-            pathname:'/issues',
+            pathname: "/issues",
             search,
-          })
+          });
         }
-        newList.splice(index,1);
-        return {issues:newList};
+        newList.splice(index, 1);
+        return { issues: newList };
       });
-    }
-    else{
+      this.showSuccess('Issue Deleted Successfully');
+    } else {
       this.loadData();
     }
-
   }
 
   async loadData() {
-    const { location: { search }} = this.props ;
+    const {
+      location: { search },
+    } = this.props;
     const params = new URLSearchParams(search);
     const vars = {};
-    if(params.get('status')) vars.status = params.get('status');
-    const effortMin = parseInt(params.get('effortMin'),10);
-    if(!Number.isNaN(effortMin)) vars.effortMin= effortMin;
-    const effortMax = parseInt(params.get('effortMax'),10);
-    if(!Number.isNaN(effortMax)) vars.effortMax= effortMax;
+    if (params.get("status")) vars.status = params.get("status");
+    const effortMin = parseInt(params.get("effortMin"), 10);
+    if (!Number.isNaN(effortMin)) vars.effortMin = effortMin;
+    const effortMax = parseInt(params.get("effortMax"), 10);
+    if (!Number.isNaN(effortMax)) vars.effortMax = effortMax;
     const query = `query issueList(
       $status: StatusType
       $effortMin: Int
@@ -118,16 +136,41 @@ export default class IssueList extends React.Component {
             title
             }
         }`;
-    const data = await GraphQLFetch(query,vars);
+    const data = await GraphQLFetch(query, vars,this.showError);
     if (data) {
       this.setState({ issues: data.issueList });
     }
   }
 
+  showSuccess(message) {
+    this.setState({
+      toastVisible: true,
+      toastMessage: message,
+      toastType: "success",
+    });
+  }
+
+  showError(message) {
+    this.setState({
+      toastVisible: true,
+      toastMessage: message,
+      toastType: "danger",
+    });
+  }
+
+  onDismiss() {
+    this.setState({ toastVisible: false });
+  }
+
   render() {
     const { issues } = this.state;
-    const { location:{search}, match } = this.props;
-    const hasFilter = search !== '';
+    const {
+      location: { search },
+      match,
+    } = this.props;
+    const hasFilter = search !== "";
+    const { toastVisible, toastMessage, toastType } = this.state;
+
     return (
       <React.Fragment>
         <Panel defaultExpanded={hasFilter}>
@@ -140,11 +183,18 @@ export default class IssueList extends React.Component {
         </Panel>
         <IssueTable
           issues={issues}
-          closeIssue={this.closeIssue} 
+          closeIssue={this.closeIssue}
           deleteIssue={this.deleteIssue}
         />
-        <IssueAdd createIssue={ this.createIssue } />
+        <IssueAdd createIssue={this.createIssue} />
         <Route path={`${match.path}/:id`} component={IssueDetail} />
+        <Toast
+          onDismiss={this.onDismiss}
+          bsStyle={toastType}
+          showing={toastVisible}
+        >
+          {toastMessage}
+        </Toast>
       </React.Fragment>
     );
   }

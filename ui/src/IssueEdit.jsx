@@ -17,6 +17,7 @@ import NumInput from "./NumInput.jsx";
 import DateInput from "./DateInput.jsx";
 import TextInput from "./TextInput.jsx";
 import { LinkContainer } from "react-router-bootstrap";
+import Toast from "./Toast.jsx";
 
 export default class IssueEdit extends React.Component {
   constructor() {
@@ -25,11 +26,17 @@ export default class IssueEdit extends React.Component {
       issue: {},
       invalidFields: {},
       showingValidation: false,
+      toastVisible: false,
+      toastMessage: "",
+      toastType: "info",
     };
     this.onChange = this.onChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onValidityChange = this.onValidityChange.bind(this);
     this.onDismissValidation = this.onDismissValidation.bind(this);
+    this.showSuccess = this.showSuccess.bind(this);
+    this.showError = this.showError.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
   }
 
   componentDidMount() {
@@ -82,10 +89,10 @@ export default class IssueEdit extends React.Component {
                     }
             }`;
     const { id, created, ...changes } = issue;
-    const data = await graphQLFetch(query, { id, changes });
+    const data = await graphQLFetch(query, { id, changes },this.showError);
     if (data) {
       this.setState({ issue: data.issueUpdate });
-      alert("Issue Updated Successfully.");
+      this.showSuccess("Issue Updated Successfully.");
     }
   }
 
@@ -110,7 +117,7 @@ export default class IssueEdit extends React.Component {
         params: { id },
       },
     } = this.props;
-    const data = await graphQLFetch(query, { id });
+    const data = await graphQLFetch(query, { id },this.showError);
     if (data) {
       const { issue } = data;
       this.setState({ issue, invalidFields: {} });
@@ -125,6 +132,26 @@ export default class IssueEdit extends React.Component {
 
   onDismissValidation() {
     this.setState({ showingValidation: false });
+  }
+
+  showSuccess(message) {
+    this.setState({
+      toastVisible: true,
+      toastMessage: message,
+      toastType: "success",
+    });
+  }
+
+  showError(message) {
+    this.setState({
+      toastVisible: true,
+      toastMessage: message,
+      toastType: "danger",
+    });
+  }
+
+  onDismiss() {
+    this.setState({ toastVisible: false });
   }
 
   render() {
@@ -161,6 +188,7 @@ export default class IssueEdit extends React.Component {
     const {
       issue: { due, created },
     } = this.state;
+    const { toastVisible, toastMessage, toastType } = this.state;
 
     return (
       <Panel>
@@ -298,6 +326,13 @@ export default class IssueEdit extends React.Component {
           {" | "}
           <Link to={`/edit/${id + 1}`}>Next</Link>
         </Panel.Footer>
+        <Toast
+          onDismiss={this.onDismiss}
+          bsStyle={toastType}
+          showing={toastVisible}
+        >
+          {toastMessage}
+        </Toast>
       </Panel>
     );
   }
