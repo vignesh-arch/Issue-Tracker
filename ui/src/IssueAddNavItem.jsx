@@ -15,7 +15,7 @@ import {
 import { withRouter } from "react-router-dom";
 
 import Toast from "./Toast.jsx";
-import GraphQLFetch from "./graphQLFetch.js";
+import graphQLFetch from "./graphQLFetch.js";
 
 class IssueAddNavItem extends React.Component {
   constructor(props) {
@@ -55,7 +55,7 @@ class IssueAddNavItem extends React.Component {
                 id
             }
         }`;
-    const data = await GraphQLFetch(query, { issue }, this.showError);
+    const data = await graphQLFetch(query, { issue }, this.showError);
     if (data) {
       const { history } = this.props;
       history.push(`/edit/${data.addIssue.id}`);

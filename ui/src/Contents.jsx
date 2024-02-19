@@ -1,20 +1,15 @@
 import React from 'react';
 import { Route,Switch,Redirect } from 'react-router-dom';
 
-import IssueList from './IssueList.jsx';
-import IssueReport from './IssueReport.jsx';
-import IssueEdit from './IssueEdit.jsx';
-
-const NotFound = () => <h1>Page Not Found</h1> ;
+import routes from './routes.js';
 
 export default function Contents() {
     return (
         <Switch>
             <Redirect exact from= '/' to= '/issues'/>
-            <Route path= '/issues' component = {IssueList}/>
-            <Route path= '/edit/:id' component = {IssueEdit}/>
-            <Route path= '/report' component = {IssueReport}/>
-            <Route component = {NotFound}/>
+            { routes.map( attr => {
+                return <Route {...attr} key={attr.path} />
+            })}
         </Switch>
     );
 }

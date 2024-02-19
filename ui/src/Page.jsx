@@ -4,10 +4,8 @@ import {
   NavItem,
   Nav,
   Glyphicon,
-  OverlayTrigger,
   NavDropdown,
   MenuItem,
-  Tooltip,
   Grid,
 } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
@@ -39,7 +37,9 @@ function NavBar() {
           title={<Glyphicon glyph="option-vertical" />}
           noCaret
         >
-          <MenuItem>About</MenuItem>
+          <LinkContainer to="/about">
+            <MenuItem>About</MenuItem>
+          </LinkContainer>
         </NavDropdown>
       </Nav>
     </Navbar>

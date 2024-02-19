@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { LinkContainer } from "react-router-bootstrap";
 import {
   Panel,
   Form,
@@ -16,44 +17,54 @@ import graphQLFetch from "./graphQLFetch.js";
 import NumInput from "./NumInput.jsx";
 import DateInput from "./DateInput.jsx";
 import TextInput from "./TextInput.jsx";
-import { LinkContainer } from "react-router-bootstrap";
 import Toast from "./Toast.jsx";
+import store from "./store.js";
 
 export default class IssueEdit extends React.Component {
+  static async fetchData ( match,search, showError ) {
+    const query = `query issue($id: Int!){
+            issue(id: $id){
+                id title status owner
+                effort created due description
+            }
+        }`;
+    const { params: {id} } = match;
+    const result = await graphQLFetch( query, { id }, showError );
+    return result;
+  }
+
   constructor() {
     super();
+    const issue = store.initialData ? store.initialData.issue : null;
+    delete store.initialData;
     this.state = {
-      issue: {},
+      issue,
       invalidFields: {},
       showingValidation: false,
       toastVisible: false,
       toastMessage: "",
-      toastType: "info",
+      toastType: "success",
     };
     this.onChange = this.onChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onValidityChange = this.onValidityChange.bind(this);
     this.onDismissValidation = this.onDismissValidation.bind(this);
     this.showSuccess = this.showSuccess.bind(this);
-    this.showError = this.showError.bind(this);
+    this.showError = this.showError.bind( this );
+    this.showValidation = this.showValidation.bind( this );
     this.onDismissToast = this.onDismissToast.bind(this);
   }
 
-  componentDidMount() {
-    this.loadData();
+  componentDidMount () {
+    const { issue } = this.state;
+    if ( issue == null ) {
+      this.loadData();
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      match: {
-        params: { id: prevId },
-      },
-    } = prevProps;
-    const {
-      match: {
-        params: { id },
-      },
-    } = this.props;
+    const { match: { params: { id: prevId } } } = prevProps;
+    const { match: { params: { id } } } = this.props;
     if (id !== prevId) {
       this.loadData();
     }
@@ -105,25 +116,10 @@ export default class IssueEdit extends React.Component {
     });
   }
 
-  async loadData() {
-    const query = `query issue($id: Int!){
-            issue(id: $id){
-                id title status owner
-                effort created due description
-            }
-        }`;
-    const {
-      match: {
-        params: { id },
-      },
-    } = this.props;
-    const data = await graphQLFetch(query, { id },this.showError);
-    if (data) {
-      const { issue } = data;
-      this.setState({ issue, invalidFields: {} });
-    } else {
-      this.setState({ issue: {}, invalidFields: {} });
-    }
+  async loadData () {
+    const { match } = this.props;
+    const data = await IssueEdit.fetchData( match, null, this.showError );
+    this.setState( { issue: data ? data.issue : {}, invalidFields: {} } );
   }
 
   showValidation() {
@@ -154,15 +150,21 @@ export default class IssueEdit extends React.Component {
     this.setState({ toastVisible: false });
   }
 
-  render() {
-    const {
-      issue: { id },
-    } = this.state;
-    const {
-      match: {
-        params: { id: propsId },
-      },
-    } = this.props;
+  render () {
+    const { issue } = this.state;
+    if ( issue == null ) {
+      return null;
+    }
+
+    const { issue: { id } } = this.state;
+    const { match: { params: { id: propsId } } } = this.props;
+    if (id == null) {
+      if (propsId != null) {
+        return <h3> Requested Id:{propsId} not Found</h3>;
+      }
+      return null;
+    }
+
     const { invalidFields, showingValidation } = this.state;
     let validationMessage;
     if (Object.keys(invalidFields).length !== 0 && showingValidation) {
@@ -171,12 +173,6 @@ export default class IssueEdit extends React.Component {
           Please Correct Invalid Fields before Submitting
         </Alert>
       );
-    }
-    if (id == null) {
-      if (propsId != null) {
-        return <h3> Requested Id:{propsId} not Found</h3>;
-        return null;
-      }
     }
 
     const {
