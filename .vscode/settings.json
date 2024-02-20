@@ -1,18 +1,4 @@
 {
-  "editor.fontFamily": "'Monaspace Neon', monospace",
-  "editor.fontLigatures": true,
-  "javascript.format.insertSpaceAfterConstructor": true,
-  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": true,
-  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
-  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
-  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": true,
-  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-  "typescript.format.insertSpaceAfterConstructor": true,
-  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": true,
-  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
-  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": true,
-  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": true,
-  "typescript.format.insertSpaceAfterTypeAssertion": true,
-  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
-  "editor.fontSize": 12
+    "editor.tabSize": 4,
+    "prettier.tabWidth": 4
 }

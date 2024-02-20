@@ -1,14 +1,14 @@
-import React from 'react';
-import { Route,Switch,Redirect } from 'react-router-dom';
+import React from "react";
+import { Route, Switch, Redirect } from "react-router-dom";
 
-import routes from './routes.js';
+import routes from "./routes.js";
 
 export default function Contents() {
     return (
         <Switch>
-            <Redirect exact from= '/' to= '/issues'/>
-            { routes.map( attr => {
-                return <Route {...attr} key={attr.path} />
+            <Redirect exact from="/" to="/issues" />
+            {routes.map((attr) => {
+                return <Route {...attr} key={attr.path} />;
             })}
         </Switch>
     );

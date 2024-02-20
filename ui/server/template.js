@@ -1,7 +1,7 @@
-import serialize from 'serialize-javascript';
+import serialize from "serialize-javascript";
 
-export default function template ( body, data ) {
-  return `<!DOCTYPE html>
+export default function template(body, data) {
+    return `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -31,4 +31,3 @@ export default function template ( body, data ) {
 </html>
 `;
 }
-
