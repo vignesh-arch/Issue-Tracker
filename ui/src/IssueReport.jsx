@@ -1,24 +1,24 @@
-import React from "react";
-import { Panel, Table } from "react-bootstrap";
+import React from 'react';
+import { Panel, Table } from 'react-bootstrap';
 
-import IssueFilter from "./IssueFilter.jsx";
-import store from "./store.js";
-import graphQLFetch from "./graphQLFetch.js";
-import withToast from "./withToast.jsx";
+import IssueFilter from './IssueFilter.jsx';
+import store from './store.js';
+import graphQLFetch from './graphQLFetch.js';
+import withToast from './withToast.jsx';
 
-const statuses = ["New", "Assigned", "Fixed", "Closed"];
+const statuses = ['New', 'Assigned', 'Fixed', 'Closed'];
 class IssueReport extends React.Component {
-    static async fetchData(match, search, showError) {
-        const params = new URLSearchParams(search);
-        const vars = {};
-        if (params.get("status")) vars.status = params.get("status");
+  static async fetchData(match, search, showError) {
+    const params = new URLSearchParams(search);
+    const vars = {};
+    if (params.get('status')) vars.status = params.get('status');
 
-        const effortMin = parseInt(params.get("effortMin"), 10);
-        if (!Number.isNaN(effortMin)) vars.effortMin = effortMin;
-        const effortMax = parseInt(params.get("effortMax"), 10);
-        if (!Number.isNaN(effortMax)) vars.effortMax = effortMax;
+    const effortMin = parseInt(params.get('effortMin'), 10);
+    if (!Number.isNaN(effortMin)) vars.effortMin = effortMin;
+    const effortMax = parseInt(params.get('effortMax'), 10);
+    if (!Number.isNaN(effortMax)) vars.effortMax = effortMax;
 
-        const query = `query issueCounts(
+    const query = `query issueCounts(
                 $status: StatusType
                 $effortMin: Int
                 $effortMax: Int
@@ -31,89 +31,85 @@ class IssueReport extends React.Component {
                     owner New Assigned Fixed Closed
                 }
             }`;
-        const data = await graphQLFetch(query, vars, showError);
-        return data;
-    }
+    const data = await graphQLFetch(query, vars, showError);
+    return data;
+  }
 
-    constructor(props) {
-        super(props);
-        const stats = store.initialData ? store.initialData.issueCounts : null;
-        delete store.initialData;
-        this.state = {
-            stats,
-        };
-    }
+  constructor(props) {
+    super(props);
+    const stats = store.initialData ? store.initialData.issueCounts : null;
+    delete store.initialData;
+    this.state = {
+      stats,
+    };
+  }
 
-    componentDidMount() {
-        const { stats } = this.state;
-        if (stats == null) this.loadData();
-    }
+  componentDidMount() {
+    const { stats } = this.state;
+    if (stats == null) this.loadData();
+  }
 
-    componentDidUpdate(prevProps) {
-        const {
-            location: { search: prevSearch },
-        } = prevProps;
-        const {
-            location: { search },
-        } = this.props;
-        if (prevSearch !== search) this.loadData();
-    }
+  componentDidUpdate(prevProps) {
+    const {
+      location: { search: prevSearch },
+    } = prevProps;
+    const {
+      location: { search },
+    } = this.props;
+    if (prevSearch !== search) this.loadData();
+  }
 
-    async loadData() {
-        const {
-            location: { search },
-            match,
-            showError,
-        } = this.props;
-        const data = await IssueReport.fetchData(match, search.showError);
-        if (data) {
-            this.setState({ stats: data.issueCounts });
-        }
+  async loadData() {
+    const {
+      location: { search },
+      match,
+      showError,
+    } = this.props;
+    const data = await IssueReport.fetchData(match, search.showError);
+    if (data) {
+      this.setState({ stats: data.issueCounts });
     }
+  }
 
-    render() {
-        const { stats } = this.state;
-        if (stats == null) return null;
+  render() {
+    const { stats } = this.state;
+    if (stats == null) return null;
 
-        const headerColumns = statuses.map((status) => {
-            return <th key={status}>{status}</th>;
-        });
-        const statRows = stats.map((counts) => {
-            return (
-                <tr key={counts.owner}>
-                    <td>{counts.owner}</td>
-                    {statuses.map((status) => {
-                        return (
-                            <td key={status}>
-                                {counts[status] ? counts[status] : 0}
-                            </td>
-                        );
-                    })}
-                </tr>
-            );
-        });
-        return (
-            <React.Fragment>
-                <Panel>
-                    <Panel.Heading>
-                        <Panel.Title toggle>Filter</Panel.Title>
-                    </Panel.Heading>
-                    <Panel.Body collapsible>
-                        <IssueFilter baseUrl="/report" />
-                    </Panel.Body>
-                </Panel>
-                <Table bordered condensed hover responsive>
-                    <thead>
-                        <tr>
-                            <th />
-                            {headerColumns}
-                        </tr>
-                    </thead>
-                    <tbody>{statRows}</tbody>
-                </Table>
-            </React.Fragment>
-        );
-    }
+    const headerColumns = statuses.map((status) => {
+      return <th key={status}>{status}</th>;
+    });
+    const statRows = stats.map((counts) => {
+      return (
+        <tr key={counts.owner}>
+          <td>{counts.owner}</td>
+          {statuses.map((status) => {
+            return <td key={status}>{counts[status] ? counts[status] : 0}</td>;
+          })}
+        </tr>
+      );
+    });
+    return (
+      <React.Fragment>
+        <Panel>
+          <Panel.Heading>
+            <Panel.Title toggle>Filter</Panel.Title>
+          </Panel.Heading>
+          <Panel.Body collapsible>
+            <IssueFilter baseUrl='/report' />
+          </Panel.Body>
+        </Panel>
+        <Table bordered condensed hover responsive>
+          <thead>
+            <tr>
+              <th />
+              {headerColumns}
+            </tr>
+          </thead>
+          <tbody>{statRows}</tbody>
+        </Table>
+      </React.Fragment>
+    );
+  }
 }
 
 const IssueReportWithToast = withToast(IssueReport);
