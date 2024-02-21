@@ -1,7 +1,8 @@
 const { UserInputError } = require("apollo-server-express");
 const { getNextSequence, getDB } = require("./db.js");
 
-async function list(_, { status, effortMin, effortMax }) {
+const PAGE_SIZE = 10;
+async function list(_, { status, effortMin, effortMax, page, search }) {
     const db = getDB();
     const filter = {};
     if (status) filter.status = status;
@@ -10,8 +11,13 @@ async function list(_, { status, effortMin, effortMax }) {
         if (effortMin !== undefined) filter.effort.$gte = effortMin;
         if (effortMax !== undefined) filter.effort.$lte = effortMax;
     }
-    const issues = await db.collection("issues").find(filter).toArray();
-    return issues;
+    if (search) filter.$text = { $search: search };
+    const cursor = db.collection('issues').find(filter).sort({ id: 1 }).skip(PAGE_SIZE * (page - 1)).limit(PAGE_SIZE);
+
+    const totalCount = await cursor.count(false);
+    const issues = cursor.toArray();
+    const pages = Math.ceil(totalCount / PAGE_SIZE);
+    return { issues, pages };
 }
 
 function validate(issue) {
@@ -72,6 +78,19 @@ async function remove(_, { id }) {
     return false;
 }
 
+async function restore(_, { id }) {
+    const db = getDB();
+    const issue = await db.collection("deleted_issues").findOne({ id });
+    if (!issue) return false;
+
+    let result = await db.collection("issues").insertOne(issue);
+    if (result.insertedId) {
+        result = await db.collection("deleted_issues").deleteOne({ id });
+        return result.deletedCount === 1;
+    }
+    return false;
+}
+
 async function counts(_, { status, effortMin, effortMax }) {
     const db = getDB();
     const filter = {};
@@ -113,4 +132,5 @@ module.exports = {
     update,
     delete: remove,
     counts,
+    restore,
 };

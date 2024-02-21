@@ -23,6 +23,10 @@ type IssueCounts {
     Fixed: Int
     Closed: Int
 }
+type IssueListWithPages{
+    issues: [Issue!]!
+    pages: Int
+}
 input IssueInputs {
     title: String!
     "Optional! If not supplied , it will set to 'New' by Default "
@@ -44,7 +48,13 @@ input IssueUpdateInputs {
 #top level declerations
 type Query {
     about: String!
-    issueList(status: StatusType, effortMin: Int, effortMax: Int): [Issue!]!
+    issueList(
+        status: StatusType, 
+        effortMin: Int, 
+        effortMax: Int,
+        search: String, 
+        page: Int=1
+        ): IssueListWithPages
     issue(id: Int!): Issue!
     issueCounts(
         status: StatusType
@@ -58,4 +68,5 @@ type Mutation {
     addIssue(issue: IssueInputs!): Issue!
     issueUpdate(id: Int!, changes: IssueUpdateInputs!): Issue!
     issueDelete(id: Int!): Boolean!
+    issueRestore(id: Int!): Boolean!
 }

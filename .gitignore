@@ -3,7 +3,7 @@ package-lock.json
 ui/public/*.js
 ui/public/*.map
 .env
-.vscode
-dist
+.vscode/*
+dist/*
 
 
