@@ -9,7 +9,6 @@ class SignInNavItem extends React.Component {
     this.state = {
       showing: false,
       disabled: true,
-      user: { signedIn: false, givenName: '' },
     };
     this.showModal = this.showModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
@@ -17,7 +16,7 @@ class SignInNavItem extends React.Component {
     this.signOut = this.signOut.bind(this);
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const clientId = window.ENV.GOOGLE_CLIENT_ID;
     if (!clientId) return;
     window.gapi.load('auth2', () => {
@@ -27,7 +26,6 @@ class SignInNavItem extends React.Component {
         });
       }
     });
-    await this.loadData();
   }
 
   async signIn() {
@@ -51,7 +49,8 @@ class SignInNavItem extends React.Component {
       });
       const result = await response.json();
       const { givenName, signedIn } = result;
-      this.setState({ user: { givenName, signedIn } });
+      const { onUserChange } = this.props;
+      onUserChange({ signedIn, givenName });
     }catch (error) {
       showError(`Error Signing into the app ${error}`);
     }
@@ -66,21 +65,11 @@ class SignInNavItem extends React.Component {
       });
       const auth2 = window.gapi.auth2.getAuthInstance();
       await auth2.signOut();
-      this.setState({ user: { signedIn: false, givenName: '' } });
+      const { onUserChange } = this.props;
+      onUserChange({ signedIn: false, givenName: '' });
     } catch (err) {
       showError(`Error Signing Out ${err}`);
     }
-  }
-
-  async loadData() {
-    const apiEndpoint = window.ENV.UI_AUTH_ENDPOINT;
-    const response = await fetch(`${apiEndpoint}/user`, {
-      method: 'POST',
-    });
-    const body = await response.text();
-    const result = JSON.parse(body);
-    const { signedIn, givenName } = result;
-    this.setState({ user: { signedIn, givenName } });
   }
     
   showModal() {
@@ -98,7 +87,8 @@ class SignInNavItem extends React.Component {
   }
 
   render() {
-    const { showing,disabled, user } = this.state;
+    const { showing, disabled, } = this.state;
+    const { user } = this.props;
     if (user.signedIn) {
       return (
         <NavDropdown title={user.givenName} id='user'>
