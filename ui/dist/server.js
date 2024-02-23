@@ -22,7 +22,7 @@
 /******/
 /******/ 	var hotApplyOnUpdate = true;
 /******/ 	// eslint-disable-next-line no-unused-vars
-/******/ 	var hotCurrentHash = "a26f1c5b3aa44f191571";
+/******/ 	var hotCurrentHash = "8e65e6cf8e33d13c499a";
 /******/ 	var hotRequestTimeout = 10000;
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule;
@@ -1114,6 +1114,12 @@ if (apiProxyTarget) {
   app.use('/graphql', http_proxy_middleware__WEBPACK_IMPORTED_MODULE_2___default()({
     target: apiProxyTarget
   }));
+  app.use('/auth', http_proxy_middleware__WEBPACK_IMPORTED_MODULE_2___default()({
+    target: apiProxyTarget
+  }));
+}
+if (!process.env.UI_AUTH_ENDPOINT) {
+  process.env.UI_AUTH_ENDPOINT = 'http://localhost:3000/auth';
 }
 if (!process.env.UI_API_ENDPOINT) {
   process.env.UI_API_ENDPOINT = 'http://localhost:3000/graphql';
@@ -1124,7 +1130,8 @@ if (!process.env.UI_SERVER_API_ENDPOINT) {
 app.get('/env.js', (req, res) => {
   const env = {
     UI_API_ENDPOINT: process.env.UI_API_ENDPOINT,
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    UI_AUTH_ENDPOINT: process.env.UI_AUTH_ENDPOINT
   };
   res.send(`window.ENV=${JSON.stringify(env)}`);
 });
@@ -2824,7 +2831,7 @@ class SignInNavItem extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Compone
     this.signIn = this.signIn.bind(this);
     this.signOut = this.signOut.bind(this);
   }
-  componentDidMount() {
+  async componentDidMount() {
     const clientId = window.ENV.GOOGLE_CLIENT_ID;
     if (!clientId) return;
     window.gapi.load('auth2', () => {
@@ -2839,24 +2846,46 @@ class SignInNavItem extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Compone
         });
       }
     });
+    await this.loadData();
   }
   async signIn() {
     this.hideModal();
     const {
       showError
     } = this.props;
+    let googleToken;
     try {
       const auth2 = window.gapi.auth2.getAuthInstance();
       const googleUser = await auth2.signIn();
-      const givenName = googleUser.getBasicProfile().getGivenName();
-      this.setState({
-        user: {
-          signedIn: true,
-          givenName
-        }
-      });
+      googleToken = googleUser.getAuthResponse().id_token;
     } catch (err) {
       showError(`Error Authenticating with Google :${err.error}`);
+    }
+    try {
+      const apiEndPoint = window.ENV.UI_AUTH_ENDPOINT;
+      const response = await fetch(`${apiEndPoint}/signin`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          google_token: googleToken
+        })
+      });
+      const result = await response.json();
+      const {
+        givenName,
+        signedIn
+      } = result;
+      this.setState({
+        user: {
+          givenName,
+          signedIn
+        }
+      });
+    } catch (error) {
+      showError(`Error Signing into the app ${error}`);
     }
   }
   signOut() {
@@ -2864,6 +2893,24 @@ class SignInNavItem extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Compone
       user: {
         signedIn: false,
         givenName: ''
+      }
+    });
+  }
+  async loadData() {
+    const apiEndpoint = window.ENV.UI_AUTH_ENDPOINT;
+    const response = await fetch(`${apiEndpoint}/user`, {
+      method: 'POST'
+    });
+    const body = await response.text();
+    const result = JSON.parse(body);
+    const {
+      signedIn,
+      givenName
+    } = result;
+    this.setState({
+      user: {
+        signedIn,
+        givenName
       }
     });
   }
