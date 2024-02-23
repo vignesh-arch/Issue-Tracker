@@ -5,6 +5,7 @@ const { ApolloServer } = require("apollo-server-express");
 const about = require("./about.js");
 const issue = require("./issue.js");
 const GraphQLDate = require("./graphql_date.js");
+const { getUser } = require("./auth.js");
 
 const resolvers = {
     Query: {
@@ -26,6 +27,7 @@ const resolvers = {
 const apolloServer = new ApolloServer({
     typeDefs: fs.readFileSync("schema.graphql", "utf-8"),
     resolvers,
+    context: getContext,
     format_error: (err) => {
         console.log(err);
         return err;
@@ -36,6 +38,11 @@ function installHandler(app) {
     const enableCors = (process.env.ENABLE_CORS || "true") === "true";
     console.log(`CORS POLICY : ${enableCors}`);
     apolloServer.applyMiddleware({ app, path: "/graphql", cors: enableCors });
+}
+
+function getContext({ req }) {
+    const user = getUser(req);
+    return { user };
 }
 
 module.exports = installHandler;

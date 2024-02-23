@@ -1,3 +1,4 @@
+const { AuthenticationError } = require('apollo-server-express');
 const bodyParser = require('body-parser');
 const express = require('express');
 const { OAuth2Client } = require('google-auth-library');
@@ -65,8 +66,17 @@ function getUser(req) {
   }
 }
 
+function mustBeSignedIn(resolver) {
+  return (root, args, { user }) => {
+    if (!user || !user.signedIn) {
+      throw new AuthenticationError('Please Sign in to continue');
+    }
+    else return resolver(root, args, { user });
+  }
+}
+
 routes.post('/user', (req, res) => {
   res.send(getUser(req));
 })
 
-module.exports = { routes };
+module.exports = { routes, getUser, mustBeSignedIn };
