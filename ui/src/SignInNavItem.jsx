@@ -62,6 +62,7 @@ class SignInNavItem extends React.Component {
     try {
       await fetch(`${apiEndpoint}/signout`, {
         method: 'POST',
+        credentials: 'include',
       });
       const auth2 = window.gapi.auth2.getAuthInstance();
       await auth2.signOut();
