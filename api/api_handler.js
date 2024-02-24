@@ -5,7 +5,7 @@ const { ApolloServer } = require("apollo-server-express");
 const about = require("./about.js");
 const issue = require("./issue.js");
 const GraphQLDate = require("./graphql_date.js");
-const { getUser } = require("./auth.js");
+const { getUser,resolveUser } = require("./auth.js");
 
 const resolvers = {
     Query: {
@@ -13,6 +13,7 @@ const resolvers = {
         issueList: issue.list,
         issue: issue.get,
         issueCounts: issue.counts,
+        user: resolveUser,
     },
     Mutation: {
         setMessage: about.setMessage,
@@ -32,6 +33,8 @@ const apolloServer = new ApolloServer({
         console.log(err);
         return err;
     },
+    playground: true,
+    introspection: true,
 });
 
 function installHandler(app) {

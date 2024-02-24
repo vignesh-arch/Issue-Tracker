@@ -49,7 +49,7 @@ routes.post('/signin', async (req, res) => {
     email,
   };
   const token = jwt.sign(credentials, JWT_SECRET);
-  res.cookie('jwt', token, { httpOnly: true });
+  res.cookie('jwt', token, { httpOnly: true,domain: process.env.COOKIE_DOMAIN });
   res.json(credentials);
 });
 
@@ -80,8 +80,12 @@ function mustBeSignedIn(resolver) {
   }
 }
 
+function resolveUser(_,args,{user}) {
+  return user;
+}
+
 routes.post('/user', (req, res) => {
   res.send(getUser(req));
 })
 
-module.exports = { routes, getUser, mustBeSignedIn };
+module.exports = { routes, getUser, mustBeSignedIn, resolveUser, };

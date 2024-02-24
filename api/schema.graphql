@@ -27,6 +27,12 @@ type IssueListWithPages{
     issues: [Issue!]!
     pages: Int
 }
+type User{
+    signedIn: Boolean!
+    givenName: String
+    email: String
+    name: String
+}
 input IssueInputs {
     title: String!
     "Optional! If not supplied , it will set to 'New' by Default "
@@ -61,6 +67,7 @@ type Query {
         effortMin: Int
         effortMax: Int
     ): [IssueCounts!]!
+    user: User!
 }
 
 type Mutation {

@@ -7,6 +7,7 @@ import Page from '../src/Page.jsx';
 import store from '../src/store.js';
 
 store.initialData = window.__INITIAL_DATA__;
+store.userData = window.__USER_DATA__;
 /* eslint "react/react-in-jsx-scope": "off" */
 /* globals React ReactDOM PropTypes */
 /* eslint "react/jsx-no-undef": "off" */
