@@ -2,13 +2,17 @@ import React from 'react';
 import { Glyphicon, Button, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { Link, withRouter, NavLink } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
+import UserContext from './UserContext';
 
-const IssueRow = withRouter(
-  ({ issue, location: { search }, closeIssue, index, deleteIssue }) => {
+class IssueRowPlain extends React.Component{
+  render() {
+    const { issue, location: { search }, closeIssue, index, deleteIssue } = this.props;
+    const user = this.context;
+    const disabled = !user.signedIn;
     const url = { pathname: `/issues/${issue.id}`, search };
     const closeTooltip = <Tooltip id='close-tooltip'>Close Issue</Tooltip>;
     const deleteTooltip = <Tooltip id='delete-tooltip'>Delete Issue</Tooltip>;
-    const editTooltip = <Tooltip id='edit-tooltip'>Edit Issue</Tooltip>;
+    const editTooltip = <Tooltip id='edit-tooltip'>Edit Issue</Tooltip>;  
 
     function onClose(e) {
       e.preventDefault();
@@ -42,7 +46,7 @@ const IssueRow = withRouter(
             delayShow={1000}
             overlay={closeTooltip}
           >
-            <Button bsSize="xsmall" type="button" onClick={onClose}>
+            <Button disabled={disabled} bsSize="xsmall" type="button" onClick={onClose}>
               <Glyphicon glyph="remove" />
             </Button>
           </OverlayTrigger>
@@ -52,16 +56,18 @@ const IssueRow = withRouter(
             delayShow={1000}
             overlay={deleteTooltip}
           >
-            <Button bsSize="xsmall" type="button" onClick={onDelete}>
+            <Button disabled={disabled} bsSize="xsmall" type="button" onClick={onDelete}>
               <Glyphicon glyph="trash" />
             </Button>
           </OverlayTrigger>
         </td>
       </tr>
     );
-
     return <LinkContainer to={url}>{tableRow}</LinkContainer>;
   }
-);
+}
 
+IssueRowPlain.contextType = UserContext;
+const IssueRow = withRouter(IssueRowPlain);
+delete IssueRow.contextType;
 export default IssueRow;
